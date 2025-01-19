@@ -1,4 +1,9 @@
+import java.util.Arrays;
+import java.util.List;
 import java.util.Stack;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 public class RpnCalculator {
 
@@ -10,46 +15,55 @@ public class RpnCalculator {
 
     private String infixToRpn(String expression) {
 
-        Stack<Character> stack = new Stack<Character>();
-        StringBuilder output = new StringBuilder("");
+        Stack<String> stack = new Stack<String>();
+        StringBuilder output = new StringBuilder();
 
-        for (char character : expression.toCharArray()) {
+//        String regEx = "(-?\\d+)|[+\\-^/()|[\\s]]";
+//        Pattern pattern = Pattern.compile(regEx);
+//        Matcher matcher = pattern.matcher(expression);
+//
+//        List<String> tokens =  matcher.results().map((token) -> matcher.group()).collect(Collectors.toList());
 
-            if (Character.isDigit(character) || character == ' ') {
-                output.append(character);
+        expression= expression.replaceAll("\\("," ( ");
+        expression = expression.replaceAll("\\)"," ) ");
+        String[] tokens = expression.split("\\s+");
+        for (String token : tokens) {
+
+            if (token.matches("(-?\\d+)") || token.equals(" ")) {
+                output.append(token+" ");
                 continue;
             }
 
-            if (character == '(') {
-                stack.push(character);
+            if (token.equals("(")) {
+                stack.push(token);
                 output.append(" "); // Quando remove o parenteses é necessário colocar um espaço, para o caso 3/(2 + 4)
                 continue;
             }
 
-            if (character == ')') {
+            if (token.equals(")")) {
 
-                while (!stack.isEmpty() && stack.peek() != '(') {
+                while (!stack.isEmpty() && !stack.peek().equals("(")) {
                     output.append(" "+stack.pop()+" ");
                 }
                 stack.pop();
                 continue;// remove opening parentheses
             }
-            int precedence = this.getPrecedence(character);
+            int precedence = this.getPrecedence(token);
             if (precedence == -1) {
                 throw new ArithmeticException("Expressão inválida");
             }
 
             while (!stack.isEmpty()
                     && precedence <= getPrecedence(stack.peek())
-                    && hasLeftAssociativity(character)) {
+                    && hasLeftAssociativity(token)) {
 
                 output.append(" " + stack.pop()+" ");
             }
-            stack.push(character);
+            stack.push(token);
         }
 
         while (!stack.isEmpty()) {
-            if (stack.peek() == '(') {
+            if (stack.peek().equals("(")) {
                 throw new ArithmeticException("Expressão inválida");
             }
             output.append(" " + stack.pop()+ " ");
@@ -60,20 +74,16 @@ public class RpnCalculator {
 
 
     // Operator has Left --> Right associativity
-    static boolean hasLeftAssociativity(char ch) {
-        if (ch == '+' || ch == '-' || ch == '/' || ch == '*' || ch == '^') {
-            return true;
-        } else {
-            return false;
-        }
+    static boolean hasLeftAssociativity(String token) {
+        return token.equals("+") || token.equals("-") || token.equals("/") || token.equals("*") || token.equals("^");
     }
 
-    private static int getPrecedence(char c) {
-        if (c == '+' || c == '-')
+    private static int getPrecedence(String token) {
+        if (token.equals("+") || token.equals("-"))
             return 1;
-        else if (c == '*' || c == '/')
+        else if (token.equals("/") || token.equals("*"))
             return 2;
-        else if (c == '^')
+        else if (token.equals("^"))
             return 3;
         else
             return -1;

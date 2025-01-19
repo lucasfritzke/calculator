@@ -20,8 +20,8 @@ class RpnCalculatorTest {
     }
 
     @Test
-    @DisplayName("Teste Simples Notação Polonesa 5 + 2 / (3 - 8) ^ 5 ^ 2")
+    @DisplayName("Teste Simples Notação Polonesa 5 + 2 / (3 - 8) ^ 5 ^ -2")
     void test03(){
-        assertEquals("52 22 3 8 - 5 ^ 2 ^ / +", rpnCalc.convertRpn("52 + 22/(3 - 8) ^ 5 ^ 2"));
+        assertEquals("-2 2 3 8 - -5 ^ 2 ^ / +", rpnCalc.convertRpn("-2 + 2/(3 - 8) ^ -5 ^ 2"));
     }
 }

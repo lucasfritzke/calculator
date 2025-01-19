@@ -72,7 +72,6 @@ public class Calculator {
     public BigDecimal calculate(String expression) throws ArithmeticException {
 
         String rpnExpression = rpnCalculator.convertRpn(expression);
-        System.out.println(rpnExpression);
         String[] tokens = rpnExpression.split(" ");
 
         Stack<String> stack = new Stack<>();
@@ -82,7 +81,7 @@ public class Calculator {
 
         for (String token : tokens) {
 
-            if (token.matches("\\d+")) {
+            if (token.matches("-?\\d+")) {
                 stack.push(token);
                 continue;
             }
