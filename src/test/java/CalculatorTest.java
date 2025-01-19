@@ -4,11 +4,17 @@ import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.MethodSource;
 import java.math.BigDecimal;
+import java.math.MathContext;
+import java.math.RoundingMode;
 import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+
+    // TODO: learn about dynamic tests
+
 public class CalculatorTest {
+    private static final MathContext MATH_CONTEXT = new MathContext(5, RoundingMode.HALF_UP);
     private Calculator calculator;
 
     @BeforeEach
@@ -155,6 +161,23 @@ public class CalculatorTest {
     @DisplayName("Teste calculadora -5 * -5 + 10 = 35")
     void test15(){
         assertEquals(BigDecimal.valueOf(35), calculator.calculate("-5 * -5 + 10"));
+    }
+
+    public static Stream<Arguments> calculatorMethodTest() {
+        return Stream.of(
+                Arguments.of("5 + (2 ^ 4 - 1)", "20"),
+                Arguments.of("5 + (2 ^ (4 - 1))", "13"),
+                Arguments.of("0 + 0 -0", "0"),
+                Arguments.of("5 + 2 / (3 - 8) ^ 5 ^ 2", "5"),
+                Arguments.of("8 / 3", "2.6666666667")
+        );
+    }
+
+    @ParameterizedTest
+    @DisplayName("Teste calculadora")
+    @MethodSource("calculatorMethodTest")
+    void test16(String expression, String result){
+        assertEquals(new BigDecimal(result, MATH_CONTEXT), calculator.calculate(expression));
     }
 
 
