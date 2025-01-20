@@ -14,23 +14,19 @@ public class RpnCalculator {
     }
 
     private String infixToRpn(String expression) {
-
+        int operator =0; int digit =0;
         Stack<String> stack = new Stack<String>();
         StringBuilder output = new StringBuilder();
-
-//        String regEx = "(-?\\d+)|[+\\-^/()|[\\s]]";
-//        Pattern pattern = Pattern.compile(regEx);
-//        Matcher matcher = pattern.matcher(expression);
-//
-//        List<String> tokens =  matcher.results().map((token) -> matcher.group()).collect(Collectors.toList());
 
         expression= expression.replaceAll("\\("," ( ");
         expression = expression.replaceAll("\\)"," ) ");
         String[] tokens = expression.split("\\s+");
+
         for (String token : tokens) {
 
-            if (token.matches("(-?\\d+)") || token.equals(" ")) {
+            if (token.matches("(-?[0-9]+\\.?[0-9]+|-?[0-9]+)") || token.equals(" ")) {
                 output.append(token+" ");
+                digit++;
                 continue;
             }
 
@@ -44,7 +40,14 @@ public class RpnCalculator {
 
                 while (!stack.isEmpty() && !stack.peek().equals("(")) {
                     output.append(" "+stack.pop()+" ");
+                    operator++;
+
                 }
+
+                if (stack.isEmpty()) {
+                    throw new ArithmeticException("Expressão inválida");
+                }
+
                 stack.pop();
                 continue;// remove opening parentheses
             }
@@ -58,6 +61,7 @@ public class RpnCalculator {
                     && hasLeftAssociativity(token)) {
 
                 output.append(" " + stack.pop()+" ");
+                operator++;
             }
             stack.push(token);
         }
@@ -67,8 +71,16 @@ public class RpnCalculator {
                 throw new ArithmeticException("Expressão inválida");
             }
             output.append(" " + stack.pop()+ " ");
+            operator++;
         }
-        return output.toString();
+
+        if(digit == (operator+1)){ // validates if there are no more operators than digits
+            return output.toString();
+        } else {
+            throw new ArithmeticException("Expressão inválida");
+        }
+
+
 
     }
 

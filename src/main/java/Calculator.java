@@ -6,65 +6,65 @@ import java.util.Stack;
 
 public class Calculator {
 
-    private static RpnCalculator rpnCalculator = new RpnCalculator();
+    private static final RpnCalculator rpnCalculator = new RpnCalculator();
     private static final MathContext MATH_CONTEXT = new MathContext(5, RoundingMode.HALF_UP);
 
-    public BigDecimal add(int number1, int number2, int... other) {
-        BigDecimal sum = BigDecimal.valueOf(number1);
-        sum = sum.add(BigDecimal.valueOf(number2));
-        for (int n : other) {
-            sum = sum.add(BigDecimal.valueOf(n));
+    public BigDecimal add(BigDecimal number1, BigDecimal number2, BigDecimal... others) {
+        BigDecimal sum = number1;
+        sum = sum.add(number2);
+        for (BigDecimal n : others) {
+            sum = sum.add(n);
         }
         return sum;
 
     }
 
-    public BigDecimal subtract(int number1, int number2, int... other) {
+    public BigDecimal subtract(BigDecimal number1, BigDecimal number2, BigDecimal... others) {
 
-        BigDecimal sub = BigDecimal.valueOf(number1);
-        sub = sub.subtract(BigDecimal.valueOf(number2));
-        for (int n : other) {
-            sub = sub.subtract(new BigDecimal(n));
+        BigDecimal sub = number1;
+        sub = sub.subtract(number2);
+        for (BigDecimal n : others) {
+            sub = sub.subtract(n);
         }
         return sub;
     }
 
-    public BigDecimal multiply(int number1, int number2, int... other) {
+    public BigDecimal multiply(BigDecimal number1, BigDecimal number2, BigDecimal... others) {
 
-        BigDecimal mult = BigDecimal.valueOf(number1);
-        mult = mult.multiply(BigDecimal.valueOf(number2), MATH_CONTEXT);
-        for (int n : other) {
-            mult = mult.multiply(BigDecimal.valueOf(n), MATH_CONTEXT);
+        BigDecimal mult = number1;
+        mult = mult.multiply(number2, MATH_CONTEXT);
+        for (BigDecimal n : others) {
+            mult = mult.multiply(n, MATH_CONTEXT);
         }
         return mult;
     }
 
-    public BigDecimal divide(int number1, int number2, int... other) throws ArithmeticException {
-        if (number2 == 0) {
+    public BigDecimal divide(BigDecimal number1, BigDecimal number2, BigDecimal... other) throws ArithmeticException {
+        if (number2.equals(BigDecimal.ZERO)) {
             throw new ArithmeticException("Não existe divisão por zero");
         }
-        BigDecimal div = BigDecimal.valueOf(number1);
-        div = div.divide(BigDecimal.valueOf(number2), MATH_CONTEXT);
-        for (int n : other) {
-            if (n == 0) {
+        BigDecimal div = number1;
+        div = div.divide(number2, MATH_CONTEXT);
+        for (BigDecimal n : other) {
+            if (n.equals(BigDecimal.ZERO)) {
                 throw new ArithmeticException("Não existe divisão por zero");
             }
-            div = div.divide(BigDecimal.valueOf(n), MATH_CONTEXT);
+            div = div.divide(n, MATH_CONTEXT);
         }
         return div;
     }
 
-    public BigDecimal pow(int number1, int number2, int... other) throws ArithmeticException {
-        if (number2 < 0) {
+    public BigDecimal pow(BigDecimal number1, BigDecimal number2, BigDecimal... other) throws ArithmeticException {
+        if (number2.compareTo(BigDecimal.ZERO) < 0) {
             throw new ArithmeticException("Essa calculadora não trabalho com expoentes negativos");
         }
-        BigDecimal p = BigDecimal.valueOf(number1);
-        p = p.pow(number2);
-        for (int n : other) {
-            if (n < 0) {
+        BigDecimal p = number1;
+        p = p.pow(Integer.parseInt(number2.toString()));
+        for (BigDecimal n : other) {
+            if (number2.compareTo(BigDecimal.ZERO) < 0) {
                 throw new ArithmeticException("Essa calculadora não trabalho com expoentes negativos");
             }
-            p = p.pow(n);
+            p = p.pow(Integer.parseInt(number2.toString()));
         }
         return p;
     }
@@ -81,7 +81,7 @@ public class Calculator {
 
         for (String token : tokens) {
 
-            if (token.matches("-?\\d+")) {
+            if (token.matches("-?[0-9]+\\.?[0-9]+|-?[0-9]+")) {
                 stack.push(token);
                 continue;
             }
@@ -90,41 +90,42 @@ public class Calculator {
             n1 = stack.pop();
 
             if (token.equals("+")) {
-                n1 = this.add(Integer.parseInt(n1), Integer.parseInt(n2)).toString();
+                n1 = this.add(new BigDecimal(n1), new BigDecimal(n2)).toString();
                 stack.push(n1);
                 continue;
             }
 
             if (token.equals("-")) {
-                n1 = this.subtract(Integer.parseInt(n1), Integer.parseInt(n2)).toString();
+                n1 = this.subtract(new BigDecimal(n1), new BigDecimal(n2)).toString();
                 stack.push(n1);
                 continue;
             }
 
             if (token.equals("*")) {
-                n1 = this.multiply(Integer.parseInt(n1), Integer.parseInt(n2)).toString();
+                n1 = this.multiply(new BigDecimal(n1), new BigDecimal(n2)).toString();
                 stack.push(n1);
                 continue;
             }
 
             if (token.equals("/")) {
-                n1 = this.divide(Integer.parseInt(n1), Integer.parseInt(n2)).toString();
+                n1 = this.divide(new BigDecimal(n1), new BigDecimal(n2)).toString();
                 stack.push(n1);
                 continue;
             }
 
             if (token.equals("^")) {
-                n1 = this.pow(Integer.parseInt(n1), Integer.parseInt(n2)).toString();
+                n1 = this.pow(new BigDecimal(n1), new BigDecimal(n2)).toString();
                 stack.push(n1);
                 continue;
             }
+
             // Se chegou até aqui, significa que chegamos ao final da string
             // e último elemento é o resultado final
-            n1=stack.pop();
+//            n1 = stack.pop();
 
 
         }
-        return new BigDecimal(n1);
+        return new BigDecimal(n1, MATH_CONTEXT);
     }
 
 
